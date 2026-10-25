@@ -46,11 +46,11 @@ jobs:
 
       - name: Upload via SFTP
         env:
-          SFTP_KEY: ${{ secrets.HETZNER_SFTP_PRIVATE_KEY }}
-          SFTP_KNOWN_HOSTS: ${{ secrets.HETZNER_SFTP_KNOWN_HOSTS }}
-          SFTP_HOST: ${{ secrets.HETZNER_SFTP_HOST }}
-          SFTP_USER: ${{ secrets.HETZNER_SFTP_USER }}
-          SFTP_REMOTE_DIR: ${{ vars.HETZNER_SFTP_REMOTE_DIR }}
+          SFTP_KEY: ${{ secrets.SFTP_PRIVATE_KEY }}
+          SFTP_KNOWN_HOSTS: ${{ secrets.SFTP_KNOWN_HOSTS }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_REMOTE_DIR: ${{ vars.SFTP_REMOTE_DIR }}
         run: |
           umask 077
           printf '%s\n' "$SFTP_KEY" > "$RUNNER_TEMP/key"
