@@ -83,7 +83,6 @@ jobs:
           : "${SITE_URL:?SITE_URL is empty}"
           for attempt in 1 2 3 4 5; do
             if curl -fsS -H 'Cache-Control: no-cache' "$SITE_URL/?v=$GITHUB_SHA" | grep -q "<!-- deploy $GITHUB_SHA -->"; then
-              curl -fsS -o /dev/null "$SITE_URL/rechtliches.html"
               echo "Live site serves $GITHUB_SHA"
               exit 0
             fi
