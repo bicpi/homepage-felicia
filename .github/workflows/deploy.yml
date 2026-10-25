@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: production
     env:
@@ -30,23 +30,13 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Stage site files
+      - name: Prepare site files
         run: |
-          mkdir _site
-          rsync -a \
-            --exclude='/_site' \
-            --exclude='.git' \
-            --exclude='.github' \
-            --exclude='.gitignore' \
-            --exclude='CLAUDE.md' \
-            --exclude='README*' \
-            ./ _site/
+          # Only public/ is deployed. Never mirror an empty or broken tree with --delete.
+          test -s public/index.html || { echo "::error::public/index.html missing or empty"; exit 1; }
 
-          # Never mirror an empty or broken tree with --delete.
-          test -s _site/index.html || { echo "::error::_site/index.html missing or empty"; exit 1; }
-
-          # Invisible marker the post-deploy check looks for.
-          printf '\n<!-- deploy %s -->\n' "$GITHUB_SHA" >> _site/index.html
+          # Invisible marker the post-deploy check looks for (runner copy only).
+          printf '\n<!-- deploy %s -->\n' "$GITHUB_SHA" >> public/index.html
 
       - name: Install lftp
         run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
@@ -81,7 +71,7 @@ jobs:
           set sftp:auto-confirm no
           set sftp:connect-program "ssh -a -x -i $RUNNER_TEMP/key -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$RUNNER_TEMP/known_hosts -o ConnectTimeout=20 -o ServerAliveInterval=15"
           open -u "$SFTP_USER",unused sftp://$SFTP_HOST
-          mirror $flags _site "$SFTP_REMOTE_DIR"
+          mirror $flags public "$SFTP_REMOTE_DIR"
           bye
           EOF
 
